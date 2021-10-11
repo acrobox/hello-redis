@@ -33,7 +33,12 @@ func index(w http.ResponseWriter, req *http.Request) {
 
 func incr() (int64, error) {
 	ctx := context.Background()
-	rdb := redis.NewClient(&redis.Options{Addr: os.Getenv("ABX_CACHE_DSN")})
+	dsn := os.Getenv("ABX_CACHE_DSN")
+	options, err := redis.ParseURL(dsn)
+	if err != nil {
+		return 0, err
+	}
+	rdb := redis.NewClient(options)
 	defer rdb.Close()
 	name := os.Getenv("ABX_NAME")
 	return rdb.Incr(ctx, name).Result()
